@@ -11,9 +11,11 @@ const highScoreElement = document.querySelector('.high-score')
 const scoreElement = document.querySelector('.score')
 const timeElement = document.querySelector('.time')
 
-let highScore = Number(localStorage.getItem('snakeHighScore')) || 0
+let highScore = 0
 let score = 0
 
+// Score and high-score display logic
+highScore = Number(localStorage.getItem('snakeHighScore')) || 0
 highScoreElement.textContent = highScore
 
 function updateScore() {
@@ -40,15 +42,33 @@ const blocks = []
 let snake = [{
     x: 1, y: 3
 }
-//     , {
-//     x: 1, y: 4
-// }, {
-//     x: 1, y: 5
-// }
+    //     , {
+    //     x: 1, y: 4
+    // }, {
+    //     x: 1, y: 5
+    // }
 ]
 let food = { x: Math.floor(Math.random() * rows), y: Math.floor(Math.random() * cols) }
 
 let direction = 'down'
+
+// Snake head color logic
+let snakeHeadColor = '#ffffff'
+
+function generateRandomColor() {
+    return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`
+}
+
+function changeSnakeHeadColor() {
+    snakeHeadColor = generateRandomColor()
+    const snakeHead = blocks[`${snake[0].x}-${snake[0].y}`]
+
+    if (snakeHead) {
+        snakeHead.style.backgroundColor = snakeHeadColor
+    }
+
+    setTimeout(changeSnakeHeadColor, 2000)
+}
 
 function placeFood() {
     do {
@@ -78,7 +98,7 @@ for (let row = 0; row < rows; row++) {
 
 function render() {
     let head = null
-   
+
     blocks[`${food.x}-${food.y}`].classList.add("food")
 
     if (direction === 'left') {
@@ -95,7 +115,7 @@ function render() {
         // alert('Game Over')
         clearInterval(intervalId)
 
-        modal.style.display ="flex"  
+        modal.style.display = "flex"
         startGameModal.style.display = "none"
         gameOverModal.style.display = "flex"
         return;
@@ -111,6 +131,7 @@ function render() {
 
     snake.forEach(segment => {
         blocks[`${segment.x}-${segment.y}`].classList.remove("fill")
+        blocks[`${segment.x}-${segment.y}`].style.backgroundColor = ''
 
     })
 
@@ -123,6 +144,7 @@ function render() {
         blocks[`${segment.x}-${segment.y}`].classList.add("fill")
     })
 
+    blocks[`${snake[0].x}-${snake[0].y}`].style.backgroundColor = snakeHeadColor
     blocks[`${food.x}-${food.y}`].classList.add("food")
 }
 
@@ -131,31 +153,33 @@ function render() {
 
 // }, 300)
 
-startButton.addEventListener('click',()=>{
+startButton.addEventListener('click', () => {
 
     modal.style.display = 'none'
-    intervalId = setInterval(()=>{
+    intervalId = setInterval(() => {
         render()
-    },300)
+    }, 300)
 })
 
 restartButton.addEventListener('click', restartGame)
-function restartGame(){
+function restartGame() {
     blocks[`${food.x}-${food.y}`].classList.remove("food")
     snake.forEach(segment => {
         blocks[`${segment.x}-${segment.y}`].classList.remove("fill")
     })
-    
+
     modal.style.display = 'none'
     resetScore()
     direction = 'down'
     snake = [{
-        x:1,
-        y:3
+        x: 1,
+        y: 3
     }]
-    food = { 
-        x: Math.floor(Math.random() * rows), y: Math.floor(Math.random() * cols) }
-        intervalId = setInterval(()=>{ render() },300)
+    food = {
+        x: Math.floor(Math.random() * rows),
+        y: Math.floor(Math.random() * cols)
+    }
+    intervalId = setInterval(() => { render() }, 300)
 
 }
 
@@ -172,3 +196,5 @@ addEventListener('keydown', (event) => {
         direction = 'down'
     }
 })
+
+changeSnakeHeadColor()
